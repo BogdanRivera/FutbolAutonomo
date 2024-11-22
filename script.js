@@ -11,6 +11,40 @@ rightTeamImage.src = "./img/elite.png";
 const ballImage = new Image();
 ballImage.src = "./img/balon.webp";
 
+// Definir zonas compartidas entre jugadores del equipo izquierdo y derecho
+function getSharedZone(player, team) {
+  const areaMargin = 120; // Margen de las zonas
+  let sharedZone;
+
+  switch (player.role) {
+    case "defender":
+      sharedZone = {
+        minX: Math.min(player.initialX, canvas.width - player.initialX) - areaMargin,
+        maxX: Math.max(player.initialX, canvas.width - player.initialX) + areaMargin,
+        minY: player.initialY - areaMargin,
+        maxY: player.initialY + areaMargin,
+      };
+      break;
+    case "midfielder":
+      sharedZone = {
+        minX: Math.min(player.initialX, canvas.width - player.initialX) - areaMargin,
+        maxX: Math.max(player.initialX, canvas.width - player.initialX) + areaMargin,
+        minY: player.initialY - areaMargin,
+        maxY: player.initialY + areaMargin,
+      };
+      break;
+    case "goalkeeper":
+      sharedZone = {
+        minX: player.initialX - areaMargin,
+        maxX: player.initialX + areaMargin,
+        minY: player.initialY - areaMargin,
+        maxY: player.initialY + areaMargin,
+      };
+      break;
+  }
+  return sharedZone;
+}
+
 
 // Parámetros iniciales
 const initialLeftTeamPositions = [
@@ -159,46 +193,42 @@ function movePlayers() {
 // Movimiento en función de la zona asignada
 
 // Movimiento en función de la zona asignada
-function movePlayerInZone(pos, team) {
-  const areaMargin = 120;
+// Movimiento en función de la zona compartida
+function movePlayerInZone(player, team) {
+  const sharedZone = getSharedZone(player, team);
 
-  if (pos.role === 'goalkeeper') {
-    // Límite de movimiento vertical del portero
-    const goalAreaTop = pos.initialY - areaMargin;
-    const goalAreaBottom = pos.initialY + areaMargin;
+  if (player.role === "goalkeeper") {
+    // Movimiento simple para los porteros en sus límites
+    player.y += player.moveDirection;
+    const goalAreaTop = player.initialY - 120;
+    const goalAreaBottom = player.initialY + 120;
 
-    // Movimiento simple hacia arriba y abajo dentro del área
-    pos.y += pos.moveDirection;
-
-    // Cambiar de dirección al llegar al límite
-    if (pos.y <= goalAreaTop || pos.y >= goalAreaBottom) {
-      pos.moveDirection *= -1; // Cambia de dirección
+    if (player.y <= goalAreaTop || player.y >= goalAreaBottom) {
+      player.moveDirection *= -1;
     }
   } else {
-    const minX = pos.initialX - areaMargin;
-    const maxX = pos.initialX + areaMargin;
-    const minY = pos.initialY - areaMargin;
-    const maxY = pos.initialY + areaMargin;
-
-    if (ball.x < minX || ball.x > maxX || ball.y < minY || ball.y > maxY) {
-      // Movimiento gradual hacia la posición inicial cuando el balón está fuera del área asignada
-      if (pos.x < pos.initialX) pos.x += 0.5;
-      if (pos.x > pos.initialX) pos.x -= 0.5;
-      if (pos.y < pos.initialY) pos.y += 0.5;
-      if (pos.y > pos.initialY) pos.y -= 0.5;
+    if (
+      ball.x < sharedZone.minX || ball.x > sharedZone.maxX || 
+      ball.y < sharedZone.minY || ball.y > sharedZone.maxY
+    ) {
+      // Movimiento gradual hacia la posición inicial
+      if (player.x < player.initialX) player.x += 0.5;
+      if (player.x > player.initialX) player.x -= 0.5;
+      if (player.y < player.initialY) player.y += 0.5;
+      if (player.y > player.initialY) player.y -= 0.5;
     } else {
-      // Movimiento hacia el balón dentro de la zona específica del jugador
-      if (pos.x < ball.x && pos.x < maxX) pos.x += 1;
-      if (pos.x > ball.x && pos.x > minX) pos.x -= 1;
-      if (pos.y < ball.y && pos.y < maxY) pos.y += 1;
-      if (pos.y > ball.y && pos.y > minY) pos.y -= 1;
+      // Movimiento hacia el balón dentro de la zona compartida
+      if (player.x < ball.x && player.x < sharedZone.maxX) player.x += 1;
+      if (player.x > ball.x && player.x > sharedZone.minX) player.x -= 1;
+      if (player.y < ball.y && player.y < sharedZone.maxY) player.y += 1;
+      if (player.y > ball.y && player.y > sharedZone.minY) player.y -= 1;
     }
   }
 
-  // Verificar colisiones y patear el balón si hay contacto
-  if (checkCollisions(pos)) kickBall(pos, team);
+  // Verificar colisiones y patear el balón
+  if (checkCollisions(player)) kickBall(player, team);
 
-  return pos;
+  return player;
 }
 
 
