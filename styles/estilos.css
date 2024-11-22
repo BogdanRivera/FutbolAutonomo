@@ -1,0 +1,88 @@
+
+canvas {
+    background-color: #4CAF50;
+    border: 5px solid #2C3E50;
+    width: 100%; 
+    max-width: 1000px; 
+    height: auto;
+    max-height: 100%;
+}
+
+
+body {
+    background-image: url('https://img.freepik.com/vector-gratis/fondo-monocromatico-blanco-degradado_23-2148995797.jpg?t=st=1731102952~exp=1731106552~hmac=fd5e7a855684177ee3f2ca3a031e5fe0af4fe9fd198fbd0bb52ae55effbc279c&w=740');
+    background-color: #F0F0F0;
+    margin: 0;
+    padding: 0;
+    background-repeat: round;
+}
+
+
+.container {
+    background-color: #F5F5F5;
+    color: #333333;
+    padding: 15px;
+    margin: 10px auto;
+    border: 2px solid #333333;
+    border-radius: 8px;
+    max-width: 95%;
+}
+
+
+h1 {
+    color: #E74C3C;
+}
+
+.container p {
+    color: #333333;
+    font-size: 1.1em;
+}
+
+.container img {
+    height: 120px;
+}
+
+
+.game-container {
+    padding-left: 0; 
+    max-width: 95%; 
+}
+
+
+.control-panel {
+    padding-left: 4%; 
+}
+
+.control-panel .btn {
+    width: 100%; 
+}
+
+.status-panel {
+    text-align: center;
+    padding-right: 2%;
+}
+
+.status-panel .timer, .status-panel .score {
+    background-color: #F5F5F5;
+    border: 2px solid #333333;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 10px;
+}
+
+.status-panel h5 {
+    color: #E74C3C;
+    text-align: center;
+}
+
+
+@media (max-width: 767px) {
+    .game-container {
+        flex-direction: column; 
+        align-items: center;
+    }
+
+    .status-panel {
+        margin-top: 15px;
+    }
+}
