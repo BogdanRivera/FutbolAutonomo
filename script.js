@@ -287,11 +287,11 @@ function moveBall() {
 
   // Verificar si el balón entra completamente en la portería izquierda
   if (
-    ball.x - ball.radius <= 15 && // El borde izquierdo del balón toca la línea de la portería izquierda
+    ball.x - ball.radius <= 17 && // El borde izquierdo del balón toca la línea de la portería izquierda
     ball.x - ball.radius >= 0 && // El balón no se ha ido fuera por el lado izquierdo
     ball.y >= canvas.height / 4 && // Dentro del rango vertical de la portería izquierda
     ball.y <= canvas.height / 4 + canvas.height / 2 && // Dentro del rango vertical de la portería izquierda
-    ball.x - ball.radius <= 15 && // El balón debe estar más adentro de la portería
+    ball.x - ball.radius <= 17 && // El balón debe estar más adentro de la portería
     ball.x - ball.radius > 0 // El balón debe haber pasado la línea de la portería
   ) {
     // Gol para el equipo derecho
@@ -303,11 +303,11 @@ function moveBall() {
 
   // Verificar si el balón entra completamente en la portería derecha
   if (
-    ball.x + ball.radius >= canvas.width - 15 && // El borde derecho del balón toca la línea de la portería derecha
+    ball.x + ball.radius >= canvas.width - 17 && // El borde derecho del balón toca la línea de la portería derecha
     ball.x + ball.radius <= canvas.width && // El balón no se ha ido fuera por el lado derecho
     ball.y >= canvas.height / 4 && // Dentro del rango vertical de la portería derecha
     ball.y <= canvas.height / 4 + canvas.height / 2 && // Dentro del rango vertical de la portería derecha
-    ball.x + ball.radius >= canvas.width - 15 && // El balón debe estar más adentro de la portería
+    ball.x + ball.radius >= canvas.width - 17 && // El balón debe estar más adentro de la portería
     ball.x + ball.radius < canvas.width // El balón debe haber pasado la línea de la portería
   ) {
     // Gol para el equipo izquierdo
