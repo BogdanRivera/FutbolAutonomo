@@ -180,15 +180,24 @@ function drawBall() {
   ctx.drawImage(ballImage, ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
 }
 
-// Movimiento de los jugadores
 function movePlayers() {
+  // Primero movemos a los jugadores en su zona respectiva
   leftTeamPositions = leftTeamPositions.map(pos => movePlayerInZone(pos, 'left'));
   rightTeamPositions = rightTeamPositions.map(pos => movePlayerInZone(pos, 'right'));
 
+  // Verificamos las colisiones entre los jugadores de ambos equipos
+  for (let i = 0; i < leftTeamPositions.length; i++) {
+    for (let j = 0; j < rightTeamPositions.length; j++) {
+      checkPlayerCollisions(leftTeamPositions[i], rightTeamPositions[j]);
+    }
+  }
+
+  // Movemos el balón
   moveBall();
   drawField();
   animationId = requestAnimationFrame(movePlayers);
 }
+
 
 // Movimiento en función de la zona asignada
 
@@ -229,6 +238,23 @@ function movePlayerInZone(player, team) {
   if (checkCollisions(player)) kickBall(player, team);
 
   return player;
+}
+
+function checkPlayerCollisions(playerA, playerB) {
+  const distance = Math.hypot(playerA.x - playerB.x, playerA.y - playerB.y);
+  const minDistance = 50; // Distancia mínima para que se consideren como "colisión"
+  
+  if (distance < minDistance) {
+    // Repulsión simple: mover los jugadores en direcciones opuestas
+    const angle = Math.atan2(playerB.y - playerA.y, playerB.x - playerA.x);
+    const force = 1; // Fuerza de repulsión
+
+    // Repulsión en el eje X y Y
+    playerA.x -= Math.cos(angle) * force;
+    playerA.y -= Math.sin(angle) * force;
+    playerB.x += Math.cos(angle) * force;
+    playerB.y += Math.sin(angle) * force;
+  }
 }
 
 
