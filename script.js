@@ -289,7 +289,7 @@ function moveBall() {
   if (
     ball.x - ball.radius <= 15 && // El borde izquierdo del balón toca la línea de la portería izquierda
     ball.x - ball.radius >= 0 && // El balón no se ha ido fuera por el lado izquierdo
-    ball.y >= canvas.height / 3 && // Dentro del rango vertical de la portería izquierda
+    ball.y >= canvas.height / 4 && // Dentro del rango vertical de la portería izquierda
     ball.y <= canvas.height / 4 + canvas.height / 2 && // Dentro del rango vertical de la portería izquierda
     ball.x - ball.radius <= 15 && // El balón debe estar más adentro de la portería
     ball.x - ball.radius > 0 // El balón debe haber pasado la línea de la portería
