@@ -13,7 +13,7 @@ ballImage.src = "./img/balon.webp";
 
 // Definir zonas compartidas entre jugadores del equipo izquierdo y derecho
 function getSharedZone(player, team) {
-  const areaMargin = 120; // Margen de las zonas
+  const areaMargin = 150; // Margen de las zonas
   let sharedZone;
 
   switch (player.role) {
@@ -49,7 +49,6 @@ function getSharedZone(player, team) {
 // Parámetros iniciales
 const initialLeftTeamPositions = [
   { x: 150, y: 100, direction: 1, role: 'defender', initialX: 150, initialY: 100 },
-  { x: 150, y: 300, direction: 1, role: 'defender', initialX: 150, initialY: 300 },
   { x: 150, y: 500, direction: 1, role: 'defender', initialX: 150, initialY: 500 },
   { x: 300, y: 200, direction: 1, role: 'midfielder', initialX: 300, initialY: 200 },
   { x: 300, y: 400, direction: 1, role: 'midfielder', initialX: 300, initialY: 400 },
@@ -58,7 +57,6 @@ const initialLeftTeamPositions = [
 
 const initialRightTeamPositions = [
   { x: 850, y: 100, direction: -1, role: 'defender', initialX: 850, initialY: 100 },
-  { x: 850, y: 300, direction: -1, role: 'defender', initialX: 850, initialY: 300 },
   { x: 850, y: 500, direction: -1, role: 'defender', initialX: 850, initialY: 500 },
   { x: 700, y: 200, direction: -1, role: 'midfielder', initialX: 700, initialY: 200 },
   { x: 700, y: 400, direction: -1, role: 'midfielder', initialX: 700, initialY: 400 },
@@ -305,44 +303,39 @@ function moveBall() {
     ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y)); // Asegurar que no salga del canvas
   }
 
-  // Rebote en los bordes izquierdo y derecho (sin portería)
-  if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
-    ball.speedX *= -1; // Cambiar dirección en X
-    ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x)); // Asegurar que no salga del canvas
-  }
-
   // Verificar si el balón entra completamente en la portería izquierda
   if (
-    ball.x - ball.radius <= 17 && // El borde izquierdo del balón toca la línea de la portería izquierda
-    ball.x - ball.radius >= 0 && // El balón no se ha ido fuera por el lado izquierdo
-    ball.y >= canvas.height / 4 && // Dentro del rango vertical de la portería izquierda
-    ball.y <= canvas.height / 4 + canvas.height / 2 && // Dentro del rango vertical de la portería izquierda
-    ball.x - ball.radius <= 17 && // El balón debe estar más adentro de la portería
-    ball.x - ball.radius > 0 // El balón debe haber pasado la línea de la portería
+    ball.x - ball.radius <= 0 && // El balón cruza completamente la línea izquierda
+    ball.y + ball.radius >= goalTop && // Dentro del rango vertical superior de la portería
+    ball.y - ball.radius <= goalTop + goalHeight // Dentro del rango vertical inferior de la portería
   ) {
     // Gol para el equipo derecho
     rightScore++;
     updateScoreDisplay();
-    resetBall("right"); // El equipo derecho anotó
+    resetBall("right");
     return;
   }
 
   // Verificar si el balón entra completamente en la portería derecha
   if (
-    ball.x + ball.radius >= canvas.width - 17 && // El borde derecho del balón toca la línea de la portería derecha
-    ball.x + ball.radius <= canvas.width && // El balón no se ha ido fuera por el lado derecho
-    ball.y >= canvas.height / 4 && // Dentro del rango vertical de la portería derecha
-    ball.y <= canvas.height / 4 + canvas.height / 2 && // Dentro del rango vertical de la portería derecha
-    ball.x + ball.radius >= canvas.width - 17 && // El balón debe estar más adentro de la portería
-    ball.x + ball.radius < canvas.width // El balón debe haber pasado la línea de la portería
+    ball.x + ball.radius >= canvas.width && // El balón cruza completamente la línea derecha
+    ball.y + ball.radius >= goalTop && // Dentro del rango vertical superior de la portería
+    ball.y - ball.radius <= goalTop + goalHeight // Dentro del rango vertical inferior de la portería
   ) {
     // Gol para el equipo izquierdo
     leftScore++;
     updateScoreDisplay();
-    resetBall("left"); // El equipo izquierdo anotó
+    resetBall("left");
     return;
   }
+
+  // Rebote en los bordes izquierdo y derecho (fuera de las porterías)
+  if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
+    ball.speedX *= -1; // Cambiar dirección en X
+    ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x)); // Asegurar que no salga del canvas
+  }
 }
+
 
 
 
@@ -355,20 +348,61 @@ function resetBall(lastScoringTeam) {
   ball.speedY = 0; // Detener el movimiento en Y
   isBallMoving = false;
 
-  // Esperar 90 segundos antes de mover el balón
-  setTimeout(() => {
-    // Configurar dirección inicial en función del equipo que anotó
-    if (lastScoringTeam === "left") {
-      ball.speedX = 10; // Mover hacia la derecha
-    } else if (lastScoringTeam === "right") {
-      ball.speedX = -10; // Mover hacia la izquierda
-    }
+  // Configuración para reiniciar el balón y posiciones de jugadores
+  let resetting = true; // Indicador para reinicio gradual
+  const tolerance = 60; // Tolerancia para las posiciones iniciales
 
-    // Configurar velocidad inicial en Y aleatoria
-    ball.speedY = Math.random() > 0.5 ? 8 : -8;
-    isBallMoving = true;
-  }, 1500); // 
+  function gradualReset() {
+    // Mover jugadores gradualmente a sus posiciones iniciales
+    let allPlayersReady = true;
+
+    leftTeamPositions.forEach(player => {
+      if (Math.abs(player.x - player.initialX) > tolerance) {
+        player.x += player.x < player.initialX ? 5 : -5;
+        allPlayersReady = false;
+      }
+      if (Math.abs(player.y - player.initialY) > tolerance) {
+        player.y += player.y < player.initialY ? 5 : -5;
+        allPlayersReady = false;
+      }
+    });
+
+    rightTeamPositions.forEach(player => {
+      if (Math.abs(player.x - player.initialX) > tolerance) {
+        player.x += player.x < player.initialX ? 5 : -5;
+        allPlayersReady = false;
+      }
+      if (Math.abs(player.y - player.initialY) > tolerance) {
+        player.y += player.y < player.initialY ? 5 : -5;
+        allPlayersReady = false;
+      }
+    });
+
+    // Redibujar el campo mientras los jugadores regresan a sus posiciones
+    drawField();
+
+    if (allPlayersReady) {
+      resetting = false; // Terminar reinicio gradual
+      // Configurar dirección inicial en función del equipo que anotó
+      if (lastScoringTeam === "left") {
+        ball.speedX = 6; // Mover hacia la derecha
+      } else if (lastScoringTeam === "right") {
+        ball.speedX = -6; // Mover hacia la izquierda
+      }
+      ball.speedY = Math.random() > 0.5 ? 4 : -4; // Dirección aleatoria en Y
+      isBallMoving = true; // Reiniciar movimiento del balón
+    } else {
+      requestAnimationFrame(gradualReset); // Continuar el proceso de reinicio
+    }
+  }
+
+  // Iniciar el proceso de reinicio gradual
+  if (resetting) requestAnimationFrame(gradualReset);
 }
+
+
+
+
 
 
 
