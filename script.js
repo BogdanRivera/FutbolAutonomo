@@ -13,7 +13,7 @@ ballImage.src = "./img/balon.webp";
 
 // Definir zonas compartidas entre jugadores del equipo izquierdo y derecho
 function getSharedZone(player, team) {
-  const areaMargin = 150; // Margen de las zonas
+  const areaMargin = 250; // Margen de las zonas
   let sharedZone;
 
   switch (player.role) {
@@ -198,20 +198,20 @@ function movePlayers() {
 
 
 // Movimiento en función de la zona asignada
-
-// Movimiento en función de la zona asignada
-// Movimiento en función de la zona compartida
 function movePlayerInZone(player, team) {
   const sharedZone = getSharedZone(player, team);
 
+  // Establecemos un rango de velocidad aleatoria para los jugadores
+  const randomSpeed = 1 + Math.random() * 2; // Velocidades aleatorias entre 1 y 3 unidades
+
   if (player.role === "goalkeeper") {
     // Movimiento simple para los porteros en sus límites
-    player.y += player.moveDirection;
+    player.y += player.moveDirection * randomSpeed;
     const goalAreaTop = player.initialY - 120;
     const goalAreaBottom = player.initialY + 120;
 
     if (player.y <= goalAreaTop || player.y >= goalAreaBottom) {
-      player.moveDirection *= -1;
+      player.moveDirection *= -1; // Cambiar dirección de movimiento
     }
   } else {
     if (
@@ -219,16 +219,16 @@ function movePlayerInZone(player, team) {
       ball.y < sharedZone.minY || ball.y > sharedZone.maxY
     ) {
       // Movimiento gradual hacia la posición inicial
-      if (player.x < player.initialX) player.x += 0.5;
-      if (player.x > player.initialX) player.x -= 0.5;
-      if (player.y < player.initialY) player.y += 0.5;
-      if (player.y > player.initialY) player.y -= 0.5;
+      if (player.x < player.initialX) player.x += randomSpeed;
+      if (player.x > player.initialX) player.x -= randomSpeed;
+      if (player.y < player.initialY) player.y += randomSpeed;
+      if (player.y > player.initialY) player.y -= randomSpeed;
     } else {
       // Movimiento hacia el balón dentro de la zona compartida
-      if (player.x < ball.x && player.x < sharedZone.maxX) player.x += 1;
-      if (player.x > ball.x && player.x > sharedZone.minX) player.x -= 1;
-      if (player.y < ball.y && player.y < sharedZone.maxY) player.y += 1;
-      if (player.y > ball.y && player.y > sharedZone.minY) player.y -= 1;
+      if (player.x < ball.x && player.x < sharedZone.maxX) player.x += randomSpeed;
+      if (player.x > ball.x && player.x > sharedZone.minX) player.x -= randomSpeed;
+      if (player.y < ball.y && player.y < sharedZone.maxY) player.y += randomSpeed;
+      if (player.y > ball.y && player.y > sharedZone.minY) player.y -= randomSpeed;
     }
   }
 
@@ -237,6 +237,7 @@ function movePlayerInZone(player, team) {
 
   return player;
 }
+
 
 function checkPlayerCollisions(playerA, playerB) {
   const distance = Math.hypot(playerA.x - playerB.x, playerA.y - playerB.y);
@@ -358,22 +359,22 @@ function resetBall(lastScoringTeam) {
 
     leftTeamPositions.forEach(player => {
       if (Math.abs(player.x - player.initialX) > tolerance) {
-        player.x += player.x < player.initialX ? 5 : -5;
+        player.x += player.x < player.initialX ? 15 : -15;
         allPlayersReady = false;
       }
       if (Math.abs(player.y - player.initialY) > tolerance) {
-        player.y += player.y < player.initialY ? 5 : -5;
+        player.y += player.y < player.initialY ? 15 : -15;
         allPlayersReady = false;
       }
     });
 
     rightTeamPositions.forEach(player => {
       if (Math.abs(player.x - player.initialX) > tolerance) {
-        player.x += player.x < player.initialX ? 5 : -5;
+        player.x += player.x < player.initialX ? 15 : -15;
         allPlayersReady = false;
       }
       if (Math.abs(player.y - player.initialY) > tolerance) {
-        player.y += player.y < player.initialY ? 5 : -5;
+        player.y += player.y < player.initialY ? 15 : -15;
         allPlayersReady = false;
       }
     });
