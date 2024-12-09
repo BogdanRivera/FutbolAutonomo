@@ -216,7 +216,7 @@ function movePlayerInZone(player, team) {
   const sharedZone = getSharedZone(player, team);
 
   // Establecemos un rango de velocidad aleatoria para los jugadores
-  const randomSpeed = 1 + Math.random() * 2; // Velocidades aleatorias entre 1 y 3 unidades
+  const randomSpeed = 1 + Math.random() * 2.6; // Velocidades aleatorias entre 1 y 3 unidades
 
   if (player.role === "goalkeeper") {
     // Movimiento simple para los porteros en sus límites
