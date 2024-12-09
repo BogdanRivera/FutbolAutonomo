@@ -183,7 +183,20 @@ function movePlayers() {
   leftTeamPositions = leftTeamPositions.map(pos => movePlayerInZone(pos, 'left'));
   rightTeamPositions = rightTeamPositions.map(pos => movePlayerInZone(pos, 'right'));
 
-  // Verificamos las colisiones entre los jugadores de ambos equipos
+  // Verificamos las colisiones entre los jugadores del mismo equipo
+  for (let i = 0; i < leftTeamPositions.length; i++) {
+    for (let j = i + 1; j < leftTeamPositions.length; j++) {
+      checkPlayerCollisionsSameTeam(leftTeamPositions[i], leftTeamPositions[j]);
+    }
+  }
+
+  for (let i = 0; i < rightTeamPositions.length; i++) {
+    for (let j = i + 1; j < rightTeamPositions.length; j++) {
+      checkPlayerCollisionsSameTeam(rightTeamPositions[i], rightTeamPositions[j]);
+    }
+  }
+
+  // Verificamos las colisiones entre jugadores de ambos equipos
   for (let i = 0; i < leftTeamPositions.length; i++) {
     for (let j = 0; j < rightTeamPositions.length; j++) {
       checkPlayerCollisions(leftTeamPositions[i], rightTeamPositions[j]);
@@ -195,6 +208,7 @@ function movePlayers() {
   drawField();
   animationId = requestAnimationFrame(movePlayers);
 }
+
 
 
 // Movimiento en función de la zona asignada
@@ -255,6 +269,24 @@ function checkPlayerCollisions(playerA, playerB) {
     playerB.y += Math.sin(angle) * force;
   }
 }
+
+function checkPlayerCollisionsSameTeam(playerA, playerB) {
+  const distance = Math.hypot(playerA.x - playerB.x, playerA.y - playerB.y);
+  const minDistance = 100; // Distancia mínima para considerar colisión
+
+  if (distance < minDistance) {
+    // Repulsión simple: mover los jugadores en direcciones opuestas
+    const angle = Math.atan2(playerB.y - playerA.y, playerB.x - playerA.x);
+    const force = 1; // Fuerza de repulsión
+
+    // Repulsión en el eje X y Y
+    playerA.x -= Math.cos(angle) * force;
+    playerA.y -= Math.sin(angle) * force;
+    playerB.x += Math.cos(angle) * force;
+    playerB.y += Math.sin(angle) * force;
+  }
+}
+
 
 
 
@@ -450,8 +482,8 @@ document.querySelector(".btn.btn-warning").addEventListener("click", () => {
 
   ball.x = canvas.width / 2;
   ball.y = canvas.height / 2;
-  ball.speedX = 2;
-  ball.speedY = 2;
+  ball.speedX = 4;
+  ball.speedY = 4;
   isBallMoving = false;
 
   // Reiniciar marcador
