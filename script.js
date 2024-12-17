@@ -46,13 +46,17 @@ function getSharedZone(player, team) {
 }
 
 
-// Parámetros iniciales
+
+// Parámetros iniciales para 8 jugadores por equipo
 const initialLeftTeamPositions = [
   { x: 150, y: 100, direction: 1, role: 'defender', initialX: 150, initialY: 100 },
   { x: 150, y: 500, direction: 1, role: 'defender', initialX: 150, initialY: 500 },
   { x: 300, y: 200, direction: 1, role: 'midfielder', initialX: 300, initialY: 200 },
   { x: 300, y: 400, direction: 1, role: 'midfielder', initialX: 300, initialY: 400 },
-  { x: 50, y: 300, direction: 1, role: 'goalkeeper', initialX: 50, initialY: 300, moveDirection: 1 }
+  { x: 50, y: 300, direction: 1, role: 'goalkeeper', initialX: 50, initialY: 300, moveDirection: 1 },
+  { x: 200, y: 150, direction: 1, role: 'midfielder', initialX: 200, initialY: 150 },
+  { x: 200, y: 450, direction: 1, role: 'defender', initialX: 200, initialY: 450 },
+  { x: 350, y: 300, direction: 1, role: 'midfielder', initialX: 350, initialY: 300 }
 ];
 
 const initialRightTeamPositions = [
@@ -60,7 +64,10 @@ const initialRightTeamPositions = [
   { x: 850, y: 500, direction: -1, role: 'defender', initialX: 850, initialY: 500 },
   { x: 700, y: 200, direction: -1, role: 'midfielder', initialX: 700, initialY: 200 },
   { x: 700, y: 400, direction: -1, role: 'midfielder', initialX: 700, initialY: 400 },
-  { x: 950, y: 300, direction: -1, role: 'goalkeeper', initialX: 950, initialY: 300, moveDirection: 1 }
+  { x: 950, y: 300, direction: -1, role: 'goalkeeper', initialX: 950, initialY: 300, moveDirection: 1 },
+  { x: 800, y: 150, direction: -1, role: 'midfielder', initialX: 800, initialY: 150 },
+  { x: 800, y: 450, direction: -1, role: 'defender', initialX: 800, initialY: 450 },
+  { x: 650, y: 300, direction: -1, role: 'midfielder', initialX: 650, initialY: 300 }
 ];
 
 let leftTeamPositions = JSON.parse(JSON.stringify(initialLeftTeamPositions));
@@ -70,17 +77,17 @@ let rightTeamPositions = JSON.parse(JSON.stringify(initialRightTeamPositions));
 const ball = {
   x: canvas.width / 2,
   y: canvas.height / 2,
-  radius: 20,
+  radius: 15,
   speedX: 80, // Velocidad fija X
   speedY: 60, // Velocidad fija Y
 };
-
 
 // Variables de marcador
 let leftScore = 0;
 let rightScore = 0;
 
 const maxBallSpeed = 100; // Velocidad máxima
+
 
 
 // Variables de animación y cronómetro
@@ -165,11 +172,11 @@ function drawField() {
 // Dibujo de los jugadores
 function drawPlayers() {
   leftTeamPositions.forEach(pos => {
-    ctx.drawImage(leftTeamImage, pos.x - 25, pos.y - 25, 50, 50);
+    ctx.drawImage(leftTeamImage, pos.x - 25, pos.y - 25, 40, 40);
   });
 
   rightTeamPositions.forEach(pos => {
-    ctx.drawImage(rightTeamImage, pos.x - 25, pos.y - 25, 50, 50);
+    ctx.drawImage(rightTeamImage, pos.x - 25, pos.y - 25, 40, 40);
   });
 }
 
@@ -255,12 +262,12 @@ function movePlayerInZone(player, team) {
 
 function checkPlayerCollisions(playerA, playerB) {
   const distance = Math.hypot(playerA.x - playerB.x, playerA.y - playerB.y);
-  const minDistance = 50; // Distancia mínima para que se consideren como "colisión"
-  
+  const minDistance = 30; // Distancia mínima para que se consideren como "colisión" (puedes ajustarlo)
+
   if (distance < minDistance) {
     // Repulsión simple: mover los jugadores en direcciones opuestas
     const angle = Math.atan2(playerB.y - playerA.y, playerB.x - playerA.x);
-    const force = 1; // Fuerza de repulsión
+    const force = 3; // Fuerza de repulsión más fuerte
 
     // Repulsión en el eje X y Y
     playerA.x -= Math.cos(angle) * force;
@@ -272,12 +279,12 @@ function checkPlayerCollisions(playerA, playerB) {
 
 function checkPlayerCollisionsSameTeam(playerA, playerB) {
   const distance = Math.hypot(playerA.x - playerB.x, playerA.y - playerB.y);
-  const minDistance = 100; // Distancia mínima para considerar colisión
+  const minDistance = 20; // Distancia mínima para que se consideren como "colisión" entre jugadores del mismo equipo
 
   if (distance < minDistance) {
     // Repulsión simple: mover los jugadores en direcciones opuestas
     const angle = Math.atan2(playerB.y - playerA.y, playerB.x - playerA.x);
-    const force = 1; // Fuerza de repulsión
+    const force = 3; // Fuerza de repulsión más fuerte
 
     // Repulsión en el eje X y Y
     playerA.x -= Math.cos(angle) * force;
@@ -383,7 +390,7 @@ function resetBall(lastScoringTeam) {
 
   // Configuración para reiniciar el balón y posiciones de jugadores
   let resetting = true; // Indicador para reinicio gradual
-  const tolerance = 60; // Tolerancia para las posiciones iniciales
+  const tolerance = 100; // Tolerancia para las posiciones iniciales
 
   function gradualReset() {
     // Mover jugadores gradualmente a sus posiciones iniciales
